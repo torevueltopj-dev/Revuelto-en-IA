@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To' Revuelto's IA - Asistente MUN</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff; /* Fondo Blanco */
+            padding-top: 64px; /* Espacio para el encabezado fijo */
+            padding-bottom: 80px; /* Espacio para la barra de búsqueda fija */
+        }
+        /* Estilos para el botón del menú (hacerlo girar para indicar apertura/cierre) */
+        .menu-button.active svg {
+            transform: rotate(90deg);
+        }
+        /* Estilo para preservar saltos de línea y espacios en la respuesta de la IA */
+        .whitespace-pre-wrap {
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-white text-black">
+
+    <header class="fixed top-0 left-0 w-full bg-white shadow-lg z-20">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img 
+                    src="https://placehold.co/40x40/007AFF/ffffff?text=IA" 
+                    alt="Logo To' Revuelto's IA" 
+                    class="h-10 w-10 rounded-full object-cover"
+                    onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0ibm9uZSIgdmlld0JveD0iMCAwIDQwIDQwIj48Y2lyY2xlIGN4PSIyMCIgY3k9IjIwIiByPSIxOS41IiBmaWxsPSIjRjM2NTAwIi8+PHBhdGggZmlsbD0iI0ZGRkZGRiIgZD0iTTE2LjQ0MSAxOC41NDRsMS4yODktMS4yODktMy41MTUtMy41MThMOC42OTYgMjIuNjIybDcuNzQ1LTMuMDc4Wm0xMC41OTQgLjQxMmMtLjE5NS0uMjkzLS40NTgtLjU1Ni0uNzgxLS43MTktMS40NjgtLjY4Ny00Ljg0My0uNDItNS40OTktLjg3NS0uMDYyLS4wNjMtLjIxOC0uMjgxLS4wOTMtLjMyOGwtLjQzNy0uNTMxLS41NjIuNzgxYy0uMzQ0LjUzMS0uNTkxIDEuMDYyLS42NTYgMS40MDYtLjMyOCAxLjEwOS4xMjUgMi4xMjUtLjQzNyAzLjMzMi0uMjY1LjU3OC0uNTYyIDEuMTg4LS40MDYgMS43NS4xNTYgLjU2Mi4wOTQgMS4wNDctLjE1NiAxLjU2Mi0uMjUtLjU5My0uNDIxLTEuMzA5LS4xODctMS45NTMuMTg3LS41NDYuNTYyLTEuMDQ2IDEuMjAzLTEuMjUgLjU5My0uMTg3IDEuNDg0LS42NTYgMi4zNTktLjI1LjYwNy0uMTI0IDEuMDM5LjE2MiAyLjg3Ny45MDYgMS44MjcgLjc0MiAzLjM2LS41MTYgNC4xMzYtMS4wMzEuNTk0LS4zMDIuMzc1LTEuMDg5LS4wMzEtMS4yNS0uMDYyLS4wMzItLjEzNS0uMDk3LS4xMjUtLjI1LTIuNDY5LTIuMzktMS45NjktMi42MjUtMi4xMjUtMi44MTJ6TTE5LjY2NSA1LjAzMWMtLjg3NS0uNjU2LTEuOTY5LS45ODQtMy4xNTYtLjk4NC0yLjg0NCAwLTUuMTI1IDIuMjgxLTUuMTI1IDUuMTI1IDAgMi44NDMgMi4yODEgNS4xMjUgNS4xMjUgNS4xMjUgMi4wOTMgMCA0LjAxNS0xLjI1IDQuNjg3LTMuMDMxbC0xLjcyLS45NjljLS4zNzUgMS4wMzItMS40NjkgMS43OTctMi43NSAxLjc5Ny0xLjk2OCAwLTMuNTMxLTEuNTYzLTMuNTMxLTMuNTMxIDAtMS45NjkgMS41NjMtMy41MzEgMy41MzEtMy41MzEgLjc4MSAwIDEuNTE1LjI4IDEuMDQ2LjE4Ny45MjItLjE1NiAxLjc1LS43MTggMi4zMTItMS40NjlsMS40MDYtLjk2OWMuMTU2LS4xODcuMTU2LS42MTItLjAzMS0uNzgxLTYuNzE4LTMuNzE4LTkuOTY4LTMuMTI1LTEwLjM0My0uNjU2LS4wOTQuNTYyLjM0MyAxLjI2NSAxLjE1NiAxLjU2My41NjMuMTg3IDEuMTg3LjMyOCAxLjgwOC40MDZMLjM0MyAyMy40NDJjLjQ2OC4wMzEgLjg0My4xMjUgMS4wMzEuNDY5bDEuNzUgNC4zNzVjLjM3NS44NzUuOTA2IDEuMTU2IDEuMzEyIDEuNTMxLjE4Ny4xMjUuMzQ0LjA0Ny42NDQtLjEzOEwxMC4xNjUgMjguOTdjLS4wMzIgMCAuMTU2LS41MzEuMTU2LS42MjV2LTQuMTg3Yy0uNDIxLS43MTktLjU2Mi0xLjQyMi0uOTY4LTIuMTg3LS41MzItLjk5Ny0uNjMyLTEuNDYtLjMyOC0yLjEzNC41NDYtLjI1IDEuMTg3LS40NTMgMS42ODctLjUxNnptMy45OTkgMTYuODI3Yy0uNTMxLjI1LTEuMTU2LjQ2OC0xLjY4Ny41MTEtLjY0Mi4wNTgtMS4xMjMtLjI1Ni0xLjczOS0uNzgxLS4yMTgtLjE5NS0uMjUtLjU0Ni0uMDkzLS43MDMgLjE1Ni0uMTI1LjQyMi0uMTg4LjY1Ni0uMTI1LjU2Mi4xODcuOTk3LjI2MyAxLjUzMi4xODcuNjI1LS4xNTYgMS4wOTMtLjczNSAxLjYyNC0xLjM0My4zMTMtLjM3NS41NDctLjg3NS43NjYtMS4zMTMuMzEyLS41NDYuNTQ2LTEuMTg3LjYzOS0xLjg0My4wNjMtLjU5My0uMDYyLTEuMTU2LjI1LTEuNzY1LjI1LS41MTUuNzE4LS44NzUgMS4yNS0uOTE3IDEuMDg3LS4wODQgMi4wOTQgMS40NDkgMi4xMjQgMi4wNDYuMDMyLjYyLS4wOTMgMS4xMDktLjU2MiAxLjYyNS0uNTk0LjU2Mi0xLjQzNy43OTctMi4zNDMuNjg3LS45MjItLjE0LTIuMDYyLS45MDYtMi4xMjUtMS4wOTQtLjIyLS42MjUgLjA2Mi0uOTY5LjUzMS0xLjQzNy42MDktLjU5NCAxLjIxOC0xLjExIDEuODQzLTEuNTkzLjQzNy0uMzc1Ljc1LTEuMDYyLjg3NS0xLjc1LjEwOS0uNzgxLS4xNzItMS42NTYtLjYyNS0yLjI1LS40ODQtLjYwOS0xLjQzOC0uOTUzLTIuMzEyLS41MzEtLjg0NC40MjItMS4wNjMuODk0LS43MTkgMS40NTMtLjI4IDEuMDM0LjQzNyAxLjkzNyAxLjUgMi4yNSAxLjQzOC41MTUgMi41NDctLjE0MSAyLjczNC0uNDM3WiIvPjwvc3ZnPg=='"
+                >
+                <h1 class="text-xl font-black text-blue-600 tracking-wide">
+                    To' Revuelto's IA
+                </h1>
+            </div>
+
+            <button id="menuButton" 
+                    class="menu-button p-3 rounded-full bg-blue-600 text-white shadow-xl transition-all duration-300 hover:bg-blue-700 active:scale-95" 
+                    aria-label="Abrir menú de opciones">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 transition-transform duration-300">
+                    <circle cx="12" cy="12" r="1"></circle>
+                    <circle cx="12" cy="5" r="1"></circle>
+                    <circle cx="12" cy="19" r="1"></circle>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div id="dropdownMenu" 
+         class="fixed top-16 right-4 z-30 w-64 bg-white rounded-xl shadow-2xl overflow-hidden transition-all duration-300 origin-top-right scale-0 opacity-0" 
+         role="menu" 
+         aria-orientation="vertical" 
+         aria-labelledby="menuButton">
+        <div class="p-2">
+            <button class="w-full text-left px-4 py-3 text-sm text-black hover:bg-gray-100 rounded-lg transition-colors" role="menuitem">
+                Búsqueda Diplomática
+            </button>
+            <button class="w-full text-left px-4 py-3 text-sm text-black hover:bg-gray-100 rounded-lg transition-colors" role="menuitem">
+                Interpelación
+            </button>
+            <button class="w-full text-left px-4 py-3 text-sm text-black hover:bg-gray-100 rounded-lg transition-colors" role="menuitem">
+                Corrección de discursos
+            </button>
+            <button class="w-full text-left px-4 py-3 text-sm text-black hover:bg-gray-100 rounded-lg transition-colors" role="menuitem">
+                Desglose de tópico
+            </button>
+            <button class="w-full text-left px-4 py-3 text-sm text-black hover:bg-gray-100 rounded-lg transition-colors" role="menuitem">
+                Corrección de Documento de posición
+            </button>
+        </div>
+    </div>
+    
+    <main class="max-w-xl mx-auto p-4">
+        <div class="text-center py-10">
+            <p class="text-gray-500 text-lg">
+                ¡Bienvenido a To' Revuelto's IA!
+            </p>
+            <p class="text-gray-400 mt-2">
+                Use la barra de búsqueda inferior para iniciar una **Búsqueda Diplomática** o el menú superior derecho para acceder a las **Herramientas Especializadas**.
+            </p>
+        </div>
+        </main>
+
+    <footer class="fixed bottom-0 left-0 w-full bg-white shadow-2xl z-20">
+        <div class="max-w-7xl mx-auto p-4">
+            <div class="flex items-center space-x-2">
+                <input id="searchInput" type="text" 
+                       placeholder="Escribe tu consulta aquí (Búsqueda Diplomática)..." 
+                       class="flex-grow p-3 border-2 border-gray-300 rounded-full focus:outline-none focus:border-blue-600 transition-colors text-black"
+                       aria-label="Campo de entrada de búsqueda">
+
+                <button id="searchButton" class="p-3 rounded-full bg-blue-600 text-white shadow-lg transition-colors duration-200 hover:bg-blue-700 active:scale-95" 
+                        aria-label="Buscar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // =================================================================
+        // !!! ADVERTENCIA CRÍTICA: CLAVE API EXPUESTA. USAR SOLO PARA PRUEBAS !!!
+        // 1. **DEBE** reemplazar "TU_CLAVE_API_DE_GEMINI_AQUI" con su clave real.
+        // 2. Por seguridad, obtenga una clave nueva y desechable.
+        const GEMINI_API_KEY = "TU_CLAVE_API_DE_GEMINI_AQUI"; 
+        // =================================================================
+        
+        const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + GEMINI_API_KEY;
+
+        // --- CONFIGURACIÓN DE ESTILO DIPLOMÁTICO (SYSTEM INSTRUCTION) ---
+        const SYSTEM_INSTRUCTION = {
+            role: "system",
+            parts: [{
+                text: "Eres un Asistente Diplomático experto en Modelos de Naciones Unidas (MUN) y asesor de delegados. Tu tono debe ser formal, objetivo, y estrictamente diplomático, reflejando el lenguaje usado en las comisiones de la ONU. Siempre dirígete al usuario como 'distinguido delegado' y usa la tercera persona para cualquier análisis crítico o propuesta."
+            }]
+        };
+
+        // Estructura de Discurso para la corrección
+        const DISCURSO_ESTRUCTURA = `
+            1. Introducción (Nivel mundial - Contextualización y datos globales)
+            2. Desarrollo (Nivel Nacional - Impacto y políticas del país)
+            3. Conclusión (Nivel Internacional - Propuestas y cooperación)
+        `;
+
+        // --- FUNCIÓN UNIVERSAL DE LLAMADA A LA API ---
+        async function llamarApi(functionName, inputData) {
+            if (!GEMINI_API_KEY || GEMINI_API_KEY === "TU_CLAVE_API_DE_GEMINI_AQUI") {
+                mostrarResultado("Error de configuración: Debe reemplazar 'TU_CLAVE_API_DE_GEMINI_AQUI' con su clave real.", true);
+                return;
+            }
+            
+            // 1. Crear el prompt específico y configurar herramientas si es necesario
+            let userPrompt = "";
+            let tools = [];
+            let modelToUse = 'gemini-2.5-flash';
+
+            switch(functionName) {
+                case 'busqueda_diplomatica':
+                    tools = [{ googleSearch: {} }]; // Habilita la búsqueda web
+                    userPrompt = `
+                        Distinguido delegado, realice una búsqueda de información para la siguiente consulta: "${inputData.query}".
+                        INSTRUCCIONES DE BÚSQUEDA Y FORMATO:
+                        1. Filtre las fuentes para que sean principalmente sitios web gubernamentales, de la ONU, o de organizaciones sin fines de lucro (.org) de alta reputación.
+                        2. Proporcione un enlace por fuente.
+                        3. Después de cada enlace, incluya un párrafo breve que resuma la información clave.
+                        4. Ordene la información del más reciente al más antiguo.
+                    `;
+                    break;
+                
+                case 'interpelacion':
+                    userPrompt = `
+                        Actúe como un delegado crítico en una sesión de MUN. Analice el siguiente discurso palabra por palabra,
+                        cuestionando su lógica, datos y propuestas. Siempre use la tercera persona y frases como
+                        'La delegación de To' Revuelto se cuestiona...' o 'Como la delegación aborda...'.
+                        Discurso a Interpelar: --- ${inputData.discurso} ---
+                    `;
+                    break;
+                
+                case 'correccion_discursos':
+                    userPrompt = `
+                        Analice el siguiente discurso y provea correcciones detalladas asegurándose de que cumple con la estructura ideal de un discurso MUN, que es:
+                        ${DISCURSO_ESTRUCTURA}
+                        Identifique qué sección le falta o si una sección no cumple su objetivo. El lenguaje debe ser estrictamente diplomático.
+                        Discurso a Corregir: --- ${inputData.discurso} ---
+                    `;
+                    break;
+                    
+                case 'desglose_topico':
+                    userPrompt = `
+                        Para el tema ${inputData.topico}, genere una guía de preguntas clave para la investigación de un delegado que necesita elaborar un Discurso y Documento de Posición.
+                        Las preguntas deben cubrir el contexto global, el impacto nacional (posición del país) y las posibles soluciones.
+                    `;
+                    break;
+                    
+                case 'correccion_documento':
+                    const delegacion = inputData.delegacion || 'un país';
+                    userPrompt = `
+                        Analice y corrija el siguiente Documento de Posición. Verifique la coherencia entre el Tópico, Comisión y la Delegación (${delegacion}).
+                        Asegúrese de que el cuerpo del texto siga la estructura de discurso MUN (Introducción, Desarrollo, Conclusión con bibliografía) y que la longitud esté entre 500 y 800 palabras. Proporcione correcciones específicas.
+                        Documento: --- ${inputData.documento} ---
+                    `;
+                    break;
+                
+                default:
+                    mostrarResultado(`Función no reconocida: ${functionName}`, true);
+                    return;
+            }
+
+            // 2. Construir el cuerpo de la solicitud (Request Body)
+            const requestBody = {
+                contents: [
+                    SYSTEM_INSTRUCTION, 
+                    { role: "user", parts: [{ text: userPrompt }] }
+                ],
+                config: {
+                    ...(tools.length > 0 && { tools: tools })
+                }
+            };
+
+            try {
+                mostrarMensajeCarga(`Delegado, ejecutando la función '${functionName}'. Por favor, espere...`);
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                });
+
+                ocultarMensajeCarga();
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error.message || `HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                // Extracción de la respuesta
+                const resultado = data.candidates[0].content.parts[0].text;
+                
+                mostrarResultado(resultado); 
+
+            } catch (error) {
+                console.error("Error al llamar a la IA:", error);
+                mostrarResultado(`Error diplomático: No se pudo contactar a la inteligencia artificial. Verifique su clave API y la conexión. (${error.message})`, true);
+            }
+        }
+
+        // --- FUNCIONES DE UI Y MANEJO DE EVENTOS ---
+
+        function mostrarMensajeCarga(mensaje) {
+            // Implementación simple de alerta para móvil
+            alert(mensaje); 
+        }
+
+        function ocultarMensajeCarga() {
+            // No se requiere acción si usamos alert()
+        }
+
+        function mostrarResultado(htmlContent, esError = false) {
+            const mainContent = document.querySelector('main');
+            
+            mainContent.innerHTML = `
+                <div class="p-5 ${esError ? 'bg-red-100 border-red-400' : 'bg-green-100 border-green-400'} rounded-xl shadow-lg border-l-4 mt-8">
+                    <h3 class="font-bold text-lg ${esError ? 'text-red-700' : 'text-blue-600'}">
+                        ${esError ? '¡Advertencia! Error en la comunicación' : 'Respuesta Diplomática de la IA'}
+                    </h3>
+                    <p class="text-sm ${esError ? 'text-red-600' : 'text-gray-700'} mt-3 whitespace-pre-wrap">${htmlContent}</p>
+                </div>
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        // --- LÓGICA DE MANEJO DE MENÚ Y BOTONES ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuButton = document.getElementById('menuButton');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const menuOptions = dropdownMenu.querySelectorAll('button');
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.getElementById('searchButton');
+
+            function toggleMenu() {
+                const isHidden = dropdownMenu.classList.contains('scale-0');
+                if (isHidden) {
+                    dropdownMenu.classList.remove('scale-0', 'opacity-0');
+                    dropdownMenu.classList.add('scale-100', 'opacity-100');
+                    menuButton.classList.add('active');
+                } else {
+                    dropdownMenu.classList.remove('scale-100', 'opacity-100');
+                    dropdownMenu.classList.add('scale-0', 'opacity-0');
+                    menuButton.classList.remove('active');
+                }
+            }
+
+            menuButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                toggleMenu();
+            });
+
+            document.body.addEventListener('click', (event) => {
+                if (!dropdownMenu.classList.contains('scale-0') && !menuButton.contains(event.target)) {
+                    toggleMenu();
+                }
+            });
+
+            // MANEJO DE CLIC EN LAS OPCIONES DEL MENÚ
+            menuOptions.forEach(option => {
+                option.addEventListener('click', async () => {
+                    const accion = option.textContent.trim();
+                    toggleMenu(); // Cerrar el menú al seleccionar
+
+                    let input;
+                    switch(accion) {
+                        case 'Búsqueda Diplomática':
+                            input = prompt("Delegado, ¿qué tema o pregunta desea investigar? (Fuentes .org/gob/ONU)");
+                            if (input) await llamarApi('busqueda_diplomatica', { query: input });
+                            break;
+                        case 'Interpelación':
+                            input = prompt("Delegado, pegue el discurso que desea interpelar críticamente:");
+                            if (input) await llamarApi('interpelacion', { discurso: input });
+                            break;
+                        case 'Corrección de discursos':
+                            input = prompt("Delegado, pegue el discurso que desea corregir por estructura MUN:");
+                            if (input) await llamarApi('correccion_discursos', { discurso: input });
+                            break;
+                        case 'Desglose de tópico':
+                            input = prompt("Delegado, ingrese el tema/tópico principal:");
+                            if (input) await llamarApi('desglose_topico', { topico: input });
+                            break;
+                        case 'Corrección de Documento de posición':
+                            const documento = prompt("Delegado, pegue el texto completo de su Documento de Posición (500-800 palabras):");
+                            if (documento) {
+                                // Se puede pedir el nombre del país para mejor personalización
+                                await llamarApi('correccion_documento', { documento: documento, delegacion: "El país que representa (ej: Argentina)" });
+                            }
+                            break;
+                        default:
+                            mostrarResultado(`La función '${accion}' aún está en desarrollo.`, false);
+                    }
+                });
+            });
+
+            // MANEJO DE LA BARRA DE BÚSQUEDA
+            searchButton.addEventListener('click', async () => {
+                const query = searchInput.value.trim();
+                if (query) {
+                    await llamarApi('busqueda_diplomatica', { query: query });
+                    searchInput.value = '';
+                }
+            });
+
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchButton.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
