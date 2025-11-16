@@ -140,8 +140,7 @@
             // 1. Crear el prompt específico y configurar herramientas si es necesario
             let userPrompt = "";
             let tools = [];
-            let modelToUse = 'gemini-2.5-flash';
-
+            
             switch(functionName) {
                 case 'busqueda_diplomatica':
                     tools = [{ googleSearch: {} }]; // Habilita la búsqueda web
@@ -194,15 +193,14 @@
                     return;
             }
 
-            // 2. Construir el cuerpo de la solicitud (Request Body)
+            // 2. Construir el cuerpo de la solicitud (CORRECCIÓN JSON)
             const requestBody = {
                 contents: [
                     SYSTEM_INSTRUCTION, 
                     { role: "user", parts: [{ text: userPrompt }] }
                 ],
-                config: {
-                    ...(tools.length > 0 && { tools: tools })
-                }
+                // El campo 'tools' se añade al cuerpo principal (nivel superior)
+                ...(tools.length > 0 && { tools: tools }) 
             };
 
             try {
@@ -222,26 +220,25 @@
                 }
 
                 const data = await response.json();
-                // Extracción de la respuesta
                 const resultado = data.candidates[0].content.parts[0].text;
                 
                 mostrarResultado(resultado); 
 
             } catch (error) {
                 console.error("Error al llamar a la IA:", error);
-                mostrarResultado(`Error diplomático: No se pudo contactar a la inteligencia artificial. Verifique su clave API y la conexión. (${error.message})`, true);
+                mostrarResultado(`Error diplomático: No se pudo contactar a la inteligencia artificial. (Error: ${error.message}). Por favor, revise su clave API.`, true);
             }
         }
 
         // --- FUNCIONES DE UI Y MANEJO DE EVENTOS ---
-
+        
         function mostrarMensajeCarga(mensaje) {
             // Implementación simple de alerta para móvil
             alert(mensaje); 
         }
 
         function ocultarMensajeCarga() {
-            // No se requiere acción si usamos alert()
+            // No se requiere acción
         }
 
         function mostrarResultado(htmlContent, esError = false) {
@@ -295,7 +292,7 @@
             menuOptions.forEach(option => {
                 option.addEventListener('click', async () => {
                     const accion = option.textContent.trim();
-                    toggleMenu(); // Cerrar el menú al seleccionar
+                    toggleMenu(); 
 
                     let input;
                     switch(accion) {
@@ -318,7 +315,6 @@
                         case 'Corrección de Documento de posición':
                             const documento = prompt("Delegado, pegue el texto completo de su Documento de Posición (500-800 palabras):");
                             if (documento) {
-                                // Se puede pedir el nombre del país para mejor personalización
                                 await llamarApi('correccion_documento', { documento: documento, delegacion: "El país que representa (ej: Argentina)" });
                             }
                             break;
